@@ -9,6 +9,7 @@ class Encrypt extends Component {
     inputQ: "",
     inputKoprima: "",
     inputPesan: "",
+    result: "",
   };
 
   onChangeP = (event) => {
@@ -33,6 +34,32 @@ class Encrypt extends Component {
     this.setState({
       inputPesan: event.target.value,
     });
+  };
+
+  handleEncrypt = () => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({ msg: this.state.inputPesan });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(
+      `https://rsa-keygen.herokuapp.com/encrypt/${this.state.inputP}/${this.state.inputQ}/${this.state.inputKoprima}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        this.setState({
+          result: result.message,
+        });
+      })
+      .catch((error) => console.log("error", error));
   };
 
   render() {
@@ -85,9 +112,19 @@ class Encrypt extends Component {
                 rows="10"
               ></textarea>
             </div>
+            <div className="mb-3">
+              <p>Cipher Text</p>
+              <textarea
+                className="form-control"
+                value={this.state.result}
+                readOnly={true}
+                cols="30"
+                rows="10"
+              ></textarea>
+            </div>
             <button
               onClick={() => {
-                console.log(this.state);
+                this.handleEncrypt();
               }}
               className="btn btn-success"
             >

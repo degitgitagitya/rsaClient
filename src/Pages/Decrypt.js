@@ -7,7 +7,8 @@ class Decrypt extends Component {
     inputP: "",
     inputQ: "",
     inputKoprima: "",
-    inputPesan: "",
+    inputCipher: "",
+    result: "",
   };
 
   onChangeP = (event) => {
@@ -32,6 +33,32 @@ class Decrypt extends Component {
     this.setState({
       inputCipher: event.target.value,
     });
+  };
+
+  handleDecrypt = () => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({ msg: this.state.inputCipher });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(
+      `https://rsa-keygen.herokuapp.com/decrypt/${this.state.inputP}/${this.state.inputQ}/${this.state.inputKoprima}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        this.setState({
+          result: result.message,
+        });
+      })
+      .catch((error) => console.log("error", error));
   };
 
   render() {
@@ -84,9 +111,19 @@ class Decrypt extends Component {
                 rows="10"
               ></textarea>
             </div>
+            <div className="mb-3">
+              <p>Pesan</p>
+              <textarea
+                value={this.state.result}
+                className="form-control"
+                readOnly={true}
+                cols="30"
+                rows="10"
+              ></textarea>
+            </div>
             <button
               onClick={() => {
-                console.log(this.state);
+                this.handleDecrypt();
               }}
               className="btn btn-warning"
             >
